@@ -1,0 +1,9 @@
+hosts = unix:/run/mysql/mysql.sock
+dbname = ${MYSQL_DATABASE}
+user = ${MYSQL_USER}
+password = ${MYSQL_PASSWORD}
+
+query =
+    SELECT IF(ISNULL(error_message), result, CONCAT(result, ' ', error_message))
+    FROM   sender_access
+    WHERE  address = '%s'

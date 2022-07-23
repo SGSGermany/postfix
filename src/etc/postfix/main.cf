@@ -1,0 +1,161 @@
+##
+## BASIC CONFIGURATION
+##
+
+compatibility_level = 3.7
+
+maillog_file = /dev/stdout
+
+meta_directory = /usr/share/postfix
+
+##
+## INTERNET HOST AND DOMAIN NAMES
+##
+
+#myhostname = mx.example.com
+#mydomain = example.com
+
+##
+## SENDING MAIL -- LOCAL DELIVERY
+##
+
+myorigin = localhost
+
+##
+## SENDING MAIL -- VIRTUAL DELIVERY
+##
+
+smtpd_sender_login_maps =
+    proxy:mysql:${config_directory}/sql/sender_login_maps.cf
+
+##
+## RECEIVING MAIL -- LOCAL DELIVERY
+##
+
+mydestination = localhost
+
+# disable local delivery by redirecting everything to root@${mydomain}
+local_recipient_maps = ${alias_maps}
+alias_maps = static:root@${mydomain}
+alias_database =
+
+##
+## RECEIVING MAIL -- VIRTUAL DELIVERY
+##
+
+virtual_transport = lmtp:unix:dovecot/lmtp.sock
+
+virtual_mailbox_domains =
+    proxy:mysql:${config_directory}/sql/virtual_domain_maps.cf
+virtual_mailbox_maps =
+    proxy:mysql:${config_directory}/sql/virtual_mailbox_maps.cf
+virtual_alias_domains =
+virtual_alias_maps =
+    proxy:mysql:${config_directory}/sql/virtual_alias_maps.cf
+
+##
+## SASL Authentication
+##
+
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = dovecot/auth.sock
+
+# disable AUTH by default, re-enabled in master.cf for submission(s)
+smtpd_sasl_auth_enable = no
+
+##
+## SMTP Server settings
+##
+
+smtpd_client_restrictions =
+    permit_mynetworks
+    permit_sasl_authenticated
+    reject_unknown_reverse_client_hostname
+#    reject_unknown_client_hostname
+    permit
+
+smtpd_helo_required = yes
+smtpd_helo_restrictions =
+    permit_mynetworks
+    permit_sasl_authenticated
+#    reject_invalid_helo_hostname
+#    reject_non_fqdn_helo_hostname
+#    reject_unknown_helo_hostname
+    permit
+
+smtpd_sender_restrictions =
+    permit_mynetworks
+    reject_sender_login_mismatch
+    permit_sasl_authenticated
+    check_sender_access proxy:mysql:${config_directory}/sql/sender_access.cf
+    reject_non_fqdn_sender
+    reject_unknown_sender_domain
+    permit
+
+smtpd_relay_restrictions =
+    permit_mynetworks
+    permit_sasl_authenticated
+    check_recipient_access proxy:mysql:${config_directory}/sql/recipient_access.cf
+    reject_unauth_destination
+    permit
+
+smtpd_recipient_restrictions =
+    permit_mynetworks
+    permit_sasl_authenticated
+    reject_non_fqdn_recipient
+    reject_unknown_recipient_domain
+    permit
+
+smtpd_data_restrictions =
+    reject_unauth_pipelining
+    permit
+
+##
+## SSL settings
+##
+
+smtpd_tls_security_level = may
+smtpd_tls_cert_file = /etc/postfix/ssl/mx/fullchain.pem
+smtpd_tls_key_file = /etc/postfix/ssl/mx/key.pem
+smtpd_tls_dh1024_param_file = /etc/postfix/ssl/dhparams.pem
+smtpd_tls_session_cache_database = lmdb:${data_directory}/smtpd_scache
+smtpd_tls_loglevel = 1
+
+smtp_tls_security_level = may
+smtp_tls_policy_maps =
+    mysql:${config_directory}/sql/tls_policy_maps.cf
+    socketmap:unix:mta-sts/mta-sts.sock:postfix
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+smtp_tls_session_cache_database = lmdb:${data_directory}/smtp_scache
+smtp_tls_loglevel = 1
+
+# Mozilla SSL Guideline v5.6, intermediate configuration (Postfix 3.7.2, OpenSSL 1.1.1q, last updated 2022-07-19)
+# https://ssl-config.mozilla.org/#server=postfix&version=3.7.2&config=intermediate&openssl=1.1.1q&guideline=5.6
+smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_mandatory_ciphers = medium
+smtpd_tls_ciphers = medium
+
+smtp_tls_mandatory_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtp_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtp_tls_mandatory_ciphers = medium
+smtp_tls_ciphers = medium
+
+tls_medium_cipherlist = ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+tls_preempt_cipherlist = yes
+
+##
+## Misc settings
+##
+
+# set maximum message size to 100 MB
+message_size_limit = 100000000
+
+# allow user+detail@example.com addresses
+recipient_delimiter = +
+
+# notify sender about delayed emails after 1 hour
+delay_warning_time = 1h
+
+# disable biff service (new mail notifications)
+biff = no

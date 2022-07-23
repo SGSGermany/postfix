@@ -1,0 +1,10 @@
+hosts = unix:/run/mysql/mysql.sock
+dbname = ${MYSQL_DATABASE}
+user = ${MYSQL_USER}
+password = ${MYSQL_PASSWORD}
+
+query =
+    SELECT NULL
+    FROM   domain
+    WHERE  domain = '%s'
+           AND transport = 'virtual'

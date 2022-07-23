@@ -1,0 +1,10 @@
+hosts = unix:/run/mysql/mysql.sock
+dbname = ${MYSQL_DATABASE}
+user = ${MYSQL_USER}
+password = ${MYSQL_PASSWORD}
+
+query =
+    SELECT policy,
+           params
+    FROM   tls_policy
+    WHERE  domain = '%s'

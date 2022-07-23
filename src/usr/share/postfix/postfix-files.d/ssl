@@ -1,0 +1,7 @@
+$config_directory/ssl:d:root:-:755:u
+$config_directory/ssl/dhparams.pem:f:root:-:644:u
+$config_directory/ssl/mx:d:ssl-certs:ssl-certs:755:u
+$config_directory/ssl/mx/cert.pem:f:ssl-certs:ssl-certs:644:u
+$config_directory/ssl/mx/chain.pem:f:ssl-certs:ssl-certs:644:u
+$config_directory/ssl/mx/fullchain.pem:f:ssl-certs:ssl-certs:644:u
+$config_directory/ssl/mx/key.pem:f:ssl-certs:ssl-certs:640:u

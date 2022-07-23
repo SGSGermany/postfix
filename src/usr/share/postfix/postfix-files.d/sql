@@ -1,0 +1,8 @@
+$config_directory/sql:d:root:-:755
+$config_directory/sql/recipien_access.cf:f:root:$mail_owner:640:u
+$config_directory/sql/sender_access.cf:f:root:$mail_owner:640:u
+$config_directory/sql/sender_login_maps.cf:f:root:$mail_owner:640:u
+$config_directory/sql/tls_policy_maps.cf:f:root:$mail_owner:640:u
+$config_directory/sql/virtual_alias_maps.cf:f:root:$mail_owner:640:u
+$config_directory/sql/virtual_domain_maps.cf:f:root:$mail_owner:640:u
+$config_directory/sql/virtual_mailbox_maps.cf:f:root:$mail_owner:640:u
